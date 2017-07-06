@@ -1,0 +1,19 @@
+{
+    "name": "daryl/a106",
+    "require-dev": {
+        "phpunit/phpunit": "^6.2"
+    },
+    "license": "Apache 2.0",
+    "authors": [
+        {
+            "name": "daryl",
+            "email": "daryl.moe@outlook.com"
+        }
+    ],
+	"autoload": {
+        "psr-4": {
+            "AtomSwoole\\": "src"
+        }
+    },
+    "require": {}
+}
