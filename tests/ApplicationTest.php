@@ -15,7 +15,7 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $app->bind(FuckInterface::class, Fuck::class);
         $app->bind(ShitInterface::class, Shit::class);
         $shit = new Shit();
-        $this->assertEquals($shit, $app->make(Fuck::class));
+        $this->assertEquals($shit, $app->make(FuckInterface::class));
     }
 
     /** @test */
@@ -69,5 +69,8 @@ interface ShitInterface
 
 class Shit implements ShitInterface
 {
-
+    public function __construct()
+    {
+        
+    }
 }

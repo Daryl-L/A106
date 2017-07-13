@@ -31,7 +31,7 @@ abstract class Container
      */
     public function bind($abstract, $concrete = null, $shared = false)
     {
-        unset($this->bindings);
+        unset($this->bindings[$abstract]);
 
         is_null($concrete) && $concrete = $abstract;
 
@@ -68,7 +68,9 @@ abstract class Container
             return $this->instances[$abstract];
         }
 
-        $class = new ReflectionClass($abstract);
+        $concrete = $this->bindings[$abstract]['concrete'];
+
+        $class = new ReflectionClass($concrete);
         $parameters = $class->getConstructor()->getParameters();
         $dependencies = [];
         foreach ($parameters as $parameter) {
@@ -79,12 +81,12 @@ abstract class Container
                 throw new Exception("Cannot find {$dependency} bound.");
             }
 
-            $dependency = $this->bindings[$dependency]['concrete'];
+
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];
             } else {
-                $class = new ReflectionClass($this->instances[$dependency]);
-                $dependencies = $class->newInstance();
+                $class = new ReflectionClass($this->bindings[$dependency]['concrete']);
+                $dependencies[] = $class->newInstance();
             }
         }
         $object = $class->newInstanceArgs($dependencies);

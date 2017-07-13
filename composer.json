@@ -12,7 +12,8 @@
     ],
 	"autoload": {
         "psr-4": {
-            "AtomSwoole\\": "src"
+            "AtomSwoole\\": "src",
+            "AtomSwoole\\Test\\": "tests"
         }
     },
     "require": {}
