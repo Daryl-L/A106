@@ -10,8 +10,9 @@ namespace AtomSwoole\Foundation;
 
 use AtomSwoole\Exceptions\ContainerException;
 use ReflectionClass;
+use ArrayAccess;
 
-abstract class Container implements \ArrayAccess
+abstract class Container implements ArrayAccess
 {
     protected static $instance;
 
