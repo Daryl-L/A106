@@ -12,45 +12,45 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
     public function a_application_can_make_object()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $app->bind(FuckInterface::class, Fuck::class);
-        $app->bind(ShitInterface::class, Shit::class);
-        $shit = new Shit();
-        $this->assertEquals($shit, $app->make(FuckInterface::class));
+        $app->bind(PoiInterface::class, Poi::class);
+        $app->bind(MoeInterface::class, Moe::class);
+        $moe = new Moe();
+        $this->assertEquals($moe, $app->make(PoiInterface::class));
     }
 
     /** @test */
     public function make_method_not_singleton_without_third_parameter_true()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $fuck = $app->resolve(Fuck::class, [2333]);
-        $fuck->setTest(3444);
-        $this->assertNotEquals($fuck, $app->singleton(Fuck::class, [2333]));
+        $poi = $app->resolve(Poi::class, [2333]);
+        $poi->setTest(3444);
+        $this->assertNotEquals($poi, $app->singleton(Poi::class, [2333]));
     }
 
     /** @test */
     public function a_application_can_make_singleton_object()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $fuck = $app->singleton(Fuck::class, [2333]);
-        $fuck->setTest(3444);
-        $this->assertEquals($fuck, $app->singleton(Fuck::class, [2333]));
+        $poi = $app->singleton(Poi::class, [2333]);
+        $poi->setTest(3444);
+        $this->assertEquals($poi, $app->singleton(Poi::class, [2333]));
     }
 }
 
-interface FuckInterface
+interface PoiInterface
 {
 
 }
 
-class Fuck implements FuckInterface
+class Poi implements PoiInterface
 {
-    protected $shit;
+    protected $moe;
 
     protected $test;
 
-    public function __construct(ShitInterface $shit)
+    public function __construct(MoeInterface $moe)
     {
-        $this->shit = $shit;
+        $this->moe = $moe;
     }
 
     /**
@@ -62,12 +62,12 @@ class Fuck implements FuckInterface
     }
 }
 
-interface ShitInterface
+interface MoeInterface
 {
 
 }
 
-class Shit implements ShitInterface
+class Moe implements MoeInterface
 {
     public function __construct()
     {
