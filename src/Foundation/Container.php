@@ -20,6 +20,8 @@ abstract class Container implements ArrayAccess
 
     protected $bindings;
 
+    protected $buildStack;
+
     public static function getInstance()
     {
         return static::$instance;
@@ -101,6 +103,8 @@ abstract class Container implements ArrayAccess
      */
     protected function build($concrete)
     {
+        $this->buildStack[] = $concrete;
+
         $class = new ReflectionClass($concrete);
 
         $constructor = $class->getConstructor();
@@ -120,6 +124,8 @@ abstract class Container implements ArrayAccess
 
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];
+            } elseif (in_array($this->bindings[$dependency]['concrete'], $this->buildStack)) {
+                throw new ContainerException("The loop dependency appeared in {$concrete}.");
             } else {
                 $instance = $this->build($this->bindings[$dependency]['concrete']);
                 if ($this->bindings[$dependency]['shared']) {
@@ -128,6 +134,7 @@ abstract class Container implements ArrayAccess
                 $dependencies[] = $instance;
             }
         }
+        array_pop($this->buildStack);
         return $class->newInstanceArgs($dependencies);
     }
 

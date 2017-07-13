@@ -51,6 +51,16 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $yup = $app[YupInterface::class];
         $this->assertEquals($yup, $poi->getMoe()->getYup());
     }
+
+    /** @test */
+    public function a_application_can_throw_an_exception_while_the_loop_dependency_appeared()
+    {
+        $this->expectException(\AtomSwoole\Exceptions\ContainerException::class);
+        $app = new \AtomSwoole\Foundation\Application();
+        $app->singleton(Loop::class);
+        $app->singleton(Looped::class);
+        $app->make(Loop::class);
+    }
 }
 
 interface PoiInterface
@@ -114,4 +124,24 @@ interface YupInterface
 class Yup implements YupInterface
 {
 
+}
+
+class Loop
+{
+    protected $looped;
+
+    public function __construct(Looped $looped)
+    {
+        $this->looped = $looped;
+    }
+}
+
+class Looped
+{
+    protected $loop;
+
+    public function __construct(Loop $loop)
+    {
+        $this->loop = $loop;
+    }
 }
