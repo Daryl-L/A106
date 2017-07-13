@@ -9,7 +9,6 @@
 namespace AtomSwoole\Foundation;
 
 use AtomSwoole\Exceptions\ContainerException;
-use Couchbase\Exception;
 use ReflectionClass;
 
 abstract class Container
@@ -61,7 +60,7 @@ abstract class Container
     /**
      * @param $abstract
      * @return object
-     * @throws Exception
+     * @throws ContainerException
      */
     public function resolve($abstract)
     {
@@ -85,8 +84,7 @@ abstract class Container
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];
             } else {
-                $class = new ReflectionClass($this->bindings[$dependency]['concrete']);
-                $dependencies[] = $class->newInstance();
+                $dependencies[] = (new ReflectionClass($this->bindings[$dependency]['concrete']))->newInstanceArgs();
             }
         }
         $object = $class->newInstanceArgs($dependencies);

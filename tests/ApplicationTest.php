@@ -14,8 +14,8 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $app = new \AtomSwoole\Foundation\Application();
         $app->bind(PoiInterface::class, Poi::class);
         $app->bind(MoeInterface::class, Moe::class);
-        $moe = new Moe();
-        $this->assertEquals($moe, $app->make(PoiInterface::class));
+        $app->bind(YupInterface::class, Yup::class);
+        $this->assertEquals(true, $app->make(PoiInterface::class) instanceof Poi);
     }
 
     /** @test */
@@ -24,6 +24,7 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $app = new \AtomSwoole\Foundation\Application();
         $app->singleton(PoiInterface::class, Poi::class);
         $app->singleton(MoeInterface::class, Moe::class);
+        $app->singleton(YupInterface::class, Yup::class);
         $moe = $app->make(MoeInterface::class);
         $poi = $app->make(PoiInterface::class);
         $this->assertEquals($moe, $poi->getMoe());
@@ -50,9 +51,12 @@ class Poi implements PoiInterface
 
     protected $test;
 
-    public function __construct(MoeInterface $moe)
+    protected $yup;
+
+    public function __construct(MoeInterface $moe, YupInterface $yup)
     {
         $this->moe = $moe;
+        $this->yup = $yup;
     }
 
     public function getMoe()
@@ -80,4 +84,14 @@ class Moe implements MoeInterface
     {
         
     }
+}
+
+interface YupInterface
+{
+
+}
+
+class Yup implements YupInterface
+{
+
 }
