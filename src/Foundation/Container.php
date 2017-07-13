@@ -8,6 +8,7 @@
 
 namespace AtomSwoole\Foundation;
 
+use AtomSwoole\Exceptions\ContainerException;
 use Couchbase\Exception;
 use ReflectionClass;
 
@@ -78,7 +79,7 @@ abstract class Container
 
             $dependency = $type->getName();
             if (!isset($this->bindings[$dependency]) && !$parameter->allowsNull()) {
-                throw new Exception("Cannot find {$dependency} bound.");
+                throw new ContainerException("Cannot find {$dependency} bound.");
             }
 
             if (isset($this->instances[$dependency])) {

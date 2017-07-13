@@ -28,6 +28,15 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $poi = $app->make(PoiInterface::class);
         $this->assertEquals($moe, $poi->getMoe());
     }
+
+    /** @test */
+    public function a_application_can_throw_exception_while_dependency_not_found()
+    {
+        $this->expectException(\AtomSwoole\Exceptions\ContainerException::class);
+        $app = new \AtomSwoole\Foundation\Application();
+        $app->singleton(PoiInterface::class, Poi::class);
+        $app->make(PoiInterface::class);
+    }
 }
 
 interface PoiInterface
