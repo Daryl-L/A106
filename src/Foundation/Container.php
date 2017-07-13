@@ -64,7 +64,7 @@ abstract class Container
      */
     public function resolve($abstract)
     {
-        if ($this->instances[$abstract]) {
+        if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
@@ -80,7 +80,6 @@ abstract class Container
             if (!isset($this->bindings[$dependency]) && !$parameter->allowsNull()) {
                 throw new Exception("Cannot find {$dependency} bound.");
             }
-
 
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];

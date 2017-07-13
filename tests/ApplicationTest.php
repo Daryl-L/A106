@@ -19,21 +19,14 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @test */
-    public function make_method_not_singleton_without_third_parameter_true()
-    {
-        $app = new \AtomSwoole\Foundation\Application();
-        $poi = $app->resolve(Poi::class, [2333]);
-        $poi->setTest(3444);
-        $this->assertNotEquals($poi, $app->singleton(Poi::class, [2333]));
-    }
-
-    /** @test */
     public function a_application_can_make_singleton_object()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $poi = $app->singleton(Poi::class, [2333]);
-        $poi->setTest(3444);
-        $this->assertEquals($poi, $app->singleton(Poi::class, [2333]));
+        $app->singleton(PoiInterface::class, Poi::class);
+        $app->singleton(MoeInterface::class, Moe::class);
+        $moe = $app->make(MoeInterface::class);
+        $poi = $app->make(PoiInterface::class);
+        $this->assertEquals($moe, $poi->getMoe());
     }
 }
 
@@ -51,6 +44,11 @@ class Poi implements PoiInterface
     public function __construct(MoeInterface $moe)
     {
         $this->moe = $moe;
+    }
+
+    public function getMoe()
+    {
+        return $this->moe;
     }
 
     /**
