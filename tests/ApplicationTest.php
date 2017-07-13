@@ -12,14 +12,17 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
     public function a_application_can_make_object()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $this->assertEquals(new Fuck(2333), $app->make(Fuck::class, [2333]));
+        $app->bind(FuckInterface::class, Fuck::class);
+        $app->bind(ShitInterface::class, Shit::class);
+        $shit = new Shit();
+        $this->assertEquals($shit, $app->make(Fuck::class));
     }
 
     /** @test */
     public function make_method_not_singleton_without_third_parameter_true()
     {
         $app = new \AtomSwoole\Foundation\Application();
-        $fuck = $app->make(Fuck::class, [2333]);
+        $fuck = $app->resolve(Fuck::class, [2333]);
         $fuck->setTest(3444);
         $this->assertNotEquals($fuck, $app->singleton(Fuck::class, [2333]));
     }
@@ -34,13 +37,20 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
     }
 }
 
-class Fuck
+interface FuckInterface
 {
+
+}
+
+class Fuck implements FuckInterface
+{
+    protected $shit;
+
     protected $test;
 
-    public function __construct($test)
+    public function __construct(ShitInterface $shit)
     {
-        $this->test = $test;
+        $this->shit = $shit;
     }
 
     /**
@@ -50,4 +60,14 @@ class Fuck
     {
         $this->test = $test;
     }
+}
+
+interface ShitInterface
+{
+
+}
+
+class Shit implements ShitInterface
+{
+
 }
