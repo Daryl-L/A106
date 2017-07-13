@@ -38,6 +38,19 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
         $app->singleton(PoiInterface::class, Poi::class);
         $app->make(PoiInterface::class);
     }
+
+    /** @test */
+    public function a_application_can_make_nested_dependencies()
+    {
+        $app = new \AtomSwoole\Foundation\Application();
+        $app->singleton(PoiInterface::class, Poi::class);
+        $app->singleton(MoeInterface::class, Moe::class);
+        $app->singleton(YupInterface::class, Yup::class);
+        $app->make(PoiInterface::class);
+        $poi = $app[PoiInterface::class];
+        $yup = $app[YupInterface::class];
+        $this->assertEquals($yup, $poi->getMoe()->getYup());
+    }
 }
 
 interface PoiInterface
@@ -80,9 +93,16 @@ interface MoeInterface
 
 class Moe implements MoeInterface
 {
-    public function __construct()
+    protected $yup;
+
+    public function __construct(YupInterface $yup)
     {
-        
+        $this->yup = $yup;
+    }
+
+    public function getYup()
+    {
+        return $this->yup;
     }
 }
 

@@ -11,7 +11,7 @@ namespace AtomSwoole\Foundation;
 use AtomSwoole\Exceptions\ContainerException;
 use ReflectionClass;
 
-abstract class Container
+abstract class Container implements \ArrayAccess
 {
     protected static $instance;
 
@@ -25,6 +25,8 @@ abstract class Container
     }
 
     /**
+     * Bind the abstract to concrete.
+     *
      * @param $abstract
      * @param null $concrete
      * @param bool $shared
@@ -42,12 +44,20 @@ abstract class Container
         }
     }
 
+    /**
+     * Make a instance.
+     *
+     * @param $abstract
+     * @return object
+     */
     public function make($abstract)
     {
         return $this->resolve($abstract);
     }
 
     /**
+     * Bind abstract to concrete as a single instance.
+     *
      * @param $abstract
      * @param mixed $concrete
      * @return object
@@ -58,6 +68,8 @@ abstract class Container
     }
 
     /**
+     * resolve the concrete from bindings.
+     *
      * @param $abstract
      * @return object
      * @throws ContainerException
@@ -70,7 +82,31 @@ abstract class Container
 
         $concrete = $this->bindings[$abstract]['concrete'];
 
+        $object = $this->build($concrete);
+
+        if ($this->bindings[$abstract]['shared']) {
+            $this->instances[$abstract] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * Build the instance if nested exists.
+     *
+     * @param $concrete
+     * @return object
+     * @throws ContainerException
+     */
+    protected function build($concrete)
+    {
         $class = new ReflectionClass($concrete);
+
+        $constructor = $class->getConstructor();
+        if (is_null($constructor)) {
+            return $class->newInstanceWithoutConstructor();
+        }
+
         $parameters = $class->getConstructor()->getParameters();
         $dependencies = [];
         foreach ($parameters as $parameter) {
@@ -84,15 +120,33 @@ abstract class Container
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];
             } else {
-                $dependencies[] = (new ReflectionClass($this->bindings[$dependency]['concrete']))->newInstanceArgs();
+                $instance = $this->build($this->bindings[$dependency]['concrete']);
+                if ($this->bindings[$dependency]['shared']) {
+                    $this->instances[$dependency] = $instance;
+                }
+                $dependencies[] = $instance;
             }
         }
-        $object = $class->newInstanceArgs($dependencies);
+        return $class->newInstanceArgs($dependencies);
+    }
 
-        if ($this->bindings[$abstract]['shared']) {
-            $this->instances[$abstract] = $object;
-        }
+    public function offsetExists($offset)
+    {
+        // TODO: Implement offsetExists() method.
+    }
 
-        return $object;
+    public function offsetGet($offset)
+    {
+        return $this->instances[$offset];
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        // TODO: Implement offsetSet() method.
+    }
+
+    public function offsetUnset($offset)
+    {
+        // TODO: Implement offsetUnset() method.
     }
 }
