@@ -113,6 +113,22 @@ abstract class Container implements ArrayAccess
         }
 
         $parameters = $class->getConstructor()->getParameters();
+
+        $dependencies = $this->getDependencies($parameters);
+
+        array_pop($this->buildStack);
+        return $class->newInstanceArgs($dependencies);
+    }
+
+    /**
+     * Get the dependencies with the parameters given.
+     *
+     * @param array $parameters
+     * @return array
+     * @throws ContainerException
+     */
+    protected function getDependencies($parameters = [])
+    {
         $dependencies = [];
         foreach ($parameters as $parameter) {
             $type = $parameter->getClass();
@@ -125,7 +141,8 @@ abstract class Container implements ArrayAccess
             if (isset($this->instances[$dependency])) {
                 $dependencies[] = $this->instances[$dependency];
             } elseif (in_array($this->bindings[$dependency]['concrete'], $this->buildStack)) {
-                throw new ContainerException("The loop dependency appeared in {$concrete}.");
+                $buildStack = implode(',', $this->buildStack);
+                throw new ContainerException("The loop dependency appeared [{$buildStack}].");
             } else {
                 $instance = $this->build($this->bindings[$dependency]['concrete']);
                 if ($this->bindings[$dependency]['shared']) {
@@ -134,8 +151,8 @@ abstract class Container implements ArrayAccess
                 $dependencies[] = $instance;
             }
         }
-        array_pop($this->buildStack);
-        return $class->newInstanceArgs($dependencies);
+
+        return $dependencies;
     }
 
     public function offsetExists($offset)
