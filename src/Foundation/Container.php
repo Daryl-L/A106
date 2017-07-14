@@ -109,6 +109,7 @@ abstract class Container implements ArrayAccess
 
         $constructor = $class->getConstructor();
         if (is_null($constructor)) {
+            array_pop($this->buildStack);
             return $class->newInstanceWithoutConstructor();
         }
 
@@ -138,18 +139,12 @@ abstract class Container implements ArrayAccess
                 throw new ContainerException("Cannot find {$dependency} bound.");
             }
 
-            if (isset($this->instances[$dependency])) {
-                $dependencies[] = $this->instances[$dependency];
-            } elseif (in_array($this->bindings[$dependency]['concrete'], $this->buildStack)) {
+            if (in_array($this->bindings[$dependency]['concrete'], $this->buildStack)) {
                 $buildStack = implode(',', $this->buildStack);
                 throw new ContainerException("The loop dependency appeared [{$buildStack}].");
-            } else {
-                $instance = $this->build($this->bindings[$dependency]['concrete']);
-                if ($this->bindings[$dependency]['shared']) {
-                    $this->instances[$dependency] = $instance;
-                }
-                $dependencies[] = $instance;
             }
+
+            $dependencies[] = $this->make($dependency);
         }
 
         return $dependencies;
