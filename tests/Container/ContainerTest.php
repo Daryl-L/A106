@@ -26,47 +26,56 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
         Container::setInstance(new Container);
         $this->assertNotSame($container, Container::getInstance());
     }
+
     /** @test */
-    public function a_application_can_make_object()
+    public function container_bind_and_make_with_dependencies()
     {
-        $app = new \AtomSwoole\Foundation\Application();
-        $app->bind(PoiInterface::class, Poi::class);
-        $app->bind(MoeInterface::class, Moe::class);
-        $app->bind(YupInterface::class, Yup::class);
-        $this->assertEquals(true, $app->make(PoiInterface::class) instanceof Poi);
+        $container = new Container();
+        $container->bind(PoiInterface::class, Poi::class);
+        $container->bind(MoeInterface::class, Moe::class);
+        $container->bind(YupInterface::class, Yup::class);
+        $this->assertInstanceOf(PoiInterface::class, $container->make(PoiInterface::class));
     }
 
     /** @test */
-    public function a_application_can_make_singleton_object()
+    public function container_bind_and_make_without_dependencies()
     {
-        $app = new \AtomSwoole\Foundation\Application();
-        $app->singleton(PoiInterface::class, Poi::class);
-        $app->singleton(MoeInterface::class, Moe::class);
-        $app->singleton(YupInterface::class, Yup::class);
-        $moe = $app->make(MoeInterface::class);
-        $poi = $app->make(PoiInterface::class);
-        $this->assertEquals($moe, $poi->getMoe());
+        $container = new Container();
+        $container->bind(YupInterface::class, Yup::class);
+        $this->assertInstanceOf(YupInterface::class, $container->make(YupInterface::class));
     }
 
     /** @test */
-    public function a_application_can_throw_exception_while_dependency_not_found()
+    public function container_can_make_singleton_objects()
+    {
+        $container = new Container();
+        $container->singleton(PoiInterface::class, Poi::class);
+        $container->singleton(MoeInterface::class, Moe::class);
+        $container->singleton(YupInterface::class, Yup::class);
+        $moe = $container->make(MoeInterface::class);
+        $poi = $container->make(PoiInterface::class);
+        $this->assertSame($moe, $poi->getMoe());
+    }
+
+    /** @test */
+    public function container_can_throw_an_exception_when_dependency_not_found()
     {
         $this->expectException(\AtomSwoole\Exceptions\ContainerException::class);
-        $app = new \AtomSwoole\Foundation\Application();
-        $app->singleton(PoiInterface::class, Poi::class);
-        $app->make(PoiInterface::class);
+        $container = new Container();
+        $container->singleton(PoiInterface::class, Poi::class);
+        $container->make(PoiInterface::class);
     }
 
     /** @test */
     public function a_application_can_make_nested_dependencies()
     {
-        $app = new \AtomSwoole\Foundation\Application();
-        $app->singleton(PoiInterface::class, Poi::class);
-        $app->singleton(MoeInterface::class, Moe::class);
-        $app->singleton(YupInterface::class, Yup::class);
-        $app->make(PoiInterface::class);
-        $poi = $app[PoiInterface::class];
-        $yup = $app[YupInterface::class];
+        $container = new Container();
+        $container->singleton(PoiInterface::class, Poi::class);
+        $container->singleton(MoeInterface::class, Moe::class);
+        $container->singleton(YupInterface::class, Yup::class);
+        $container->make(PoiInterface::class);
+        $poi = $container[PoiInterface::class];
+        $yup = $container[YupInterface::class];
         $this->assertEquals($yup, $poi->getMoe()->getYup());
     }
 
@@ -74,10 +83,10 @@ class ContainerTest extends \PHPUnit\Framework\TestCase
     public function a_application_can_throw_an_exception_while_the_loop_dependency_appeared()
     {
         $this->expectException(\AtomSwoole\Exceptions\ContainerException::class);
-        $app = new \AtomSwoole\Foundation\Application();
-        $app->singleton(Loop::class);
-        $app->singleton(Looped::class);
-        $app->make(Loop::class);
+        $container = new Container();
+        $container->singleton(Loop::class);
+        $container->singleton(Looped::class);
+        $container->make(Loop::class);
     }
 }
 
