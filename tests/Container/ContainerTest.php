@@ -6,8 +6,26 @@
  * Date: 2017/7/13
  * Time: 上午12:01
  */
-class ApplicationTest extends \PHPUnit\Framework\TestCase
+
+use AtomSwoole\Foundation\Container;
+
+class ContainerTest extends \PHPUnit\Framework\TestCase
 {
+    /** @test */
+    public function container_singleton()
+    {
+        $container = new Container;
+        Container::setInstance($container);
+
+        $this->assertSame($container, Container::getInstance());
+        $this->assertInstanceOf(Container::class, $container);
+
+        Container::setInstance();
+        $this->assertNull(Container::getInstance());
+
+        Container::setInstance(new Container);
+        $this->assertNotSame($container, Container::getInstance());
+    }
     /** @test */
     public function a_application_can_make_object()
     {
