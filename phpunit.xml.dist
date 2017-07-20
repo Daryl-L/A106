@@ -5,6 +5,7 @@
     <testsuites>
         <testsuite name="Container">
             <directory>tests/Container</directory>
+            <directory>tests/Server</directory>
         </testsuite>
     </testsuites>
 </phpunit>
